@@ -1,4 +1,4 @@
-"""Tasks API — 任务的 CRUD 和状态流转。"""
+"""Tasks API — 任务的 CRUD 和状态流转（支持多制度治理）。"""
 
 import uuid
 import logging
@@ -27,6 +27,9 @@ class TaskCreate(BaseModel):
     creator: str = "emperor"
     tags: list[str] = []
     meta: dict | None = None
+    governance_type: str = "san_sheng"
+    governance_config: dict | None = None
+    mechanisms: list[str] = []
 
 
 class TaskTransition(BaseModel):
@@ -58,6 +61,9 @@ class TaskOut(BaseModel):
     assignee_org: str | None
     creator: str
     tags: list[str]
+    governance_type: str = "san_sheng"
+    governance_config: dict = {}
+    mechanisms: list[str] = []
     flow_log: list
     progress_log: list
     todos: list
@@ -85,16 +91,17 @@ async def list_tasks(
     state: str | None = None,
     assignee_org: str | None = None,
     priority: str | None = None,
+    governance_type: str | None = None,
     limit: int = Query(default=50, le=200),
     offset: int = Query(default=0, ge=0),
     svc: TaskService = Depends(get_task_service),
 ):
-    """获取任务列表。"""
-    task_state = TaskState(state) if state else None
+    """获取任务列表（支持按治理制度过滤）。"""
     tasks = await svc.list_tasks(
-        state=task_state,
+        state=state,
         assignee_org=assignee_org,
         priority=priority,
+        governance_type=governance_type,
         limit=limit,
         offset=offset,
     )
@@ -122,17 +129,28 @@ async def create_task(
     body: TaskCreate,
     svc: TaskService = Depends(get_task_service),
 ):
-    """创建新任务。"""
-    task = await svc.create_task(
-        title=body.title,
-        description=body.description,
-        priority=body.priority,
-        assignee_org=body.assignee_org,
-        creator=body.creator,
-        tags=body.tags,
-        meta=body.meta,
-    )
-    return {"task_id": str(task.task_id), "trace_id": str(task.trace_id), "state": task.state.value}
+    """创建新任务（支持选择治理制度）。"""
+    try:
+        task = await svc.create_task(
+            title=body.title,
+            description=body.description,
+            priority=body.priority,
+            assignee_org=body.assignee_org,
+            creator=body.creator,
+            tags=body.tags,
+            meta=body.meta,
+            governance_type=body.governance_type,
+            governance_config=body.governance_config,
+            mechanisms=body.mechanisms,
+        )
+        return {
+            "task_id": str(task.task_id),
+            "trace_id": str(task.trace_id),
+            "state": task.state,
+            "governance_type": task.governance_type,
+        }
+    except (ValueError, KeyError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/{task_id}")
@@ -154,20 +172,21 @@ async def transition_task(
     body: TaskTransition,
     svc: TaskService = Depends(get_task_service),
 ):
-    """执行状态流转。"""
-    try:
-        new_state = TaskState(body.new_state)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid state: {body.new_state}")
-
+    """执行状态流转（根据任务绑定的治理制度校验合法性）。"""
     try:
         task = await svc.transition_state(
             task_id=task_id,
-            new_state=new_state,
+            new_state=body.new_state,
             agent=body.agent,
             reason=body.reason,
         )
-        return {"task_id": str(task.task_id), "state": task.state.value, "message": "ok"}
+        state_val = task.state if isinstance(task.state, str) else task.state.value
+        return {
+            "task_id": str(task.task_id),
+            "state": state_val,
+            "governance_type": task.governance_type,
+            "message": "ok",
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

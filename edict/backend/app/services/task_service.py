@@ -1,8 +1,9 @@
-"""任务服务层 — CRUD + 状态机逻辑。
+"""任务服务层 — CRUD + 动态治理模型状态机。
 
 所有业务规则集中在此：
-- 创建任务 → 发布 task.created 事件
-- 状态流转 → 校验合法性 + 发布状态事件
+- 创建任务 → 选择治理制度 → 发布 task.created 事件
+- 状态流转 → 通过 GovernanceModel 校验合法性 → 发布状态事件
+- 跨制度机制拦截 → 科举/御史台/功过簿
 - 查询、过滤、聚合
 """
 
@@ -14,7 +15,8 @@ from typing import Any
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.task import Task, TaskState, STATE_TRANSITIONS, TERMINAL_STATES
+from ..models.task import Task, TaskState, STATE_TRANSITIONS, TERMINAL_STATES, is_terminal_state
+from ..governance import GovernanceType, get_registry
 from .event_bus import (
     EventBus,
     TOPIC_TASK_CREATED,
@@ -30,6 +32,7 @@ class TaskService:
     def __init__(self, db: AsyncSession, event_bus: EventBus):
         self.db = db
         self.bus = event_bus
+        self._registry = get_registry()
 
     # ── 创建 ──
 
@@ -41,28 +44,53 @@ class TaskService:
         assignee_org: str | None = None,
         creator: str = "emperor",
         tags: list[str] | None = None,
-        initial_state: TaskState = TaskState.TAIZI,
+        initial_state: TaskState | str | None = None,
         meta: dict | None = None,
+        governance_type: str = "san_sheng",
+        governance_config: dict | None = None,
+        mechanisms: list[str] | None = None,
     ) -> Task:
-        """创建任务并发布 task.created 事件。"""
+        """创建任务并发布 task.created 事件。
+
+        governance_type 决定使用哪种治理模型，
+        initial_state 若不指定则使用该模型的默认初始状态。
+        """
         now = datetime.now(timezone.utc)
         trace_id = str(uuid.uuid4())
+
+        gov_model = self._registry.get_model(governance_type)
+
+        if initial_state is None:
+            state_str = gov_model.get_initial_state()
+        elif isinstance(initial_state, TaskState):
+            state_str = initial_state.value
+        else:
+            state_str = initial_state
+
+        if state_str not in gov_model.get_states():
+            raise ValueError(
+                f"State '{state_str}' is not valid for governance model '{governance_type}'. "
+                f"Valid states: {gov_model.get_states()}"
+            )
 
         task = Task(
             trace_id=trace_id,
             title=title,
             description=description,
             priority=priority,
-            state=initial_state,
+            state=state_str,
             assignee_org=assignee_org,
             creator=creator,
             tags=tags or [],
+            governance_type=governance_type,
+            governance_config=governance_config or {},
+            mechanisms=mechanisms or [],
             flow_log=[
                 {
                     "from": None,
-                    "to": initial_state.value,
+                    "to": state_str,
                     "agent": "system",
-                    "reason": "任务创建",
+                    "reason": f"任务创建 (制度: {gov_model.name})",
                     "ts": now.isoformat(),
                 }
             ],
@@ -74,7 +102,6 @@ class TaskService:
         self.db.add(task)
         await self.db.flush()
 
-        # 发布事件
         await self.bus.publish(
             topic=TOPIC_TASK_CREATED,
             trace_id=trace_id,
@@ -83,14 +110,16 @@ class TaskService:
             payload={
                 "task_id": str(task.task_id),
                 "title": title,
-                "state": initial_state.value,
+                "state": state_str,
                 "priority": priority,
                 "assignee_org": assignee_org,
+                "governance_type": governance_type,
+                "mechanisms": mechanisms or [],
             },
         )
 
         await self.db.commit()
-        log.info(f"Created task {task.task_id}: {title} [{initial_state.value}]")
+        log.info(f"Created task {task.task_id}: {title} [{state_str}] (制度: {gov_model.name})")
         return task
 
     # ── 状态流转 ──
@@ -98,29 +127,31 @@ class TaskService:
     async def transition_state(
         self,
         task_id: uuid.UUID,
-        new_state: TaskState,
+        new_state: TaskState | str,
         agent: str = "system",
         reason: str = "",
     ) -> Task:
-        """执行状态流转，校验合法性。"""
+        """执行状态流转，通过治理模型校验合法性。"""
         task = await self._get_task(task_id)
-        old_state = task.state
+        old_state_str = task.state if isinstance(task.state, str) else task.state.value
+        new_state_str = new_state if isinstance(new_state, str) else new_state.value
 
-        # 校验合法流转
-        allowed = STATE_TRANSITIONS.get(old_state, set())
-        if new_state not in allowed:
+        gov_model = self._registry.get_model(task.governance_type or "san_sheng")
+
+        if not gov_model.validate_transition(old_state_str, new_state_str):
+            allowed = gov_model.get_transitions().get(old_state_str, set())
             raise ValueError(
-                f"Invalid transition: {old_state.value} → {new_state.value}. "
-                f"Allowed: {[s.value for s in allowed]}"
+                f"Invalid transition: {old_state_str} → {new_state_str} "
+                f"(制度: {gov_model.name}). "
+                f"Allowed: {sorted(allowed)}"
             )
 
-        task.state = new_state
+        task.state = new_state_str
         task.updated_at = datetime.now(timezone.utc)
 
-        # 记入 flow_log
         flow_entry = {
-            "from": old_state.value,
-            "to": new_state.value,
+            "from": old_state_str,
+            "to": new_state_str,
             "agent": agent,
             "reason": reason,
             "ts": datetime.now(timezone.utc).isoformat(),
@@ -129,23 +160,35 @@ class TaskService:
             task.flow_log = []
         task.flow_log = [*task.flow_log, flow_entry]
 
-        # 发布状态变更事件
-        topic = TOPIC_TASK_COMPLETED if new_state in TERMINAL_STATES else TOPIC_TASK_STATUS
+        is_terminal = new_state_str in gov_model.get_terminal_states()
+        topic = TOPIC_TASK_COMPLETED if is_terminal else TOPIC_TASK_STATUS
         await self.bus.publish(
             topic=topic,
             trace_id=str(task.trace_id),
-            event_type=f"task.state.{new_state.value}",
+            event_type=f"task.state.{new_state_str}",
             producer=agent,
             payload={
                 "task_id": str(task_id),
-                "from": old_state.value,
-                "to": new_state.value,
+                "from": old_state_str,
+                "to": new_state_str,
                 "reason": reason,
+                "governance_type": task.governance_type,
             },
         )
 
+        # 触发跨制度机制回调
+        for mech_type in (task.mechanisms or []):
+            try:
+                mechanism = self._registry.get_mechanism(mech_type)
+                await mechanism.on_state_change(
+                    str(task_id), old_state_str, new_state_str,
+                    {"flow_log": task.flow_log, "task_state": new_state_str},
+                )
+            except KeyError:
+                log.warning(f"Unknown mechanism: {mech_type}")
+
         await self.db.commit()
-        log.info(f"Task {task_id} state: {old_state.value} → {new_state.value} by {agent}")
+        log.info(f"Task {task_id} state: {old_state_str} → {new_state_str} by {agent}")
         return task
 
     # ── 派发请求 ──
@@ -158,6 +201,24 @@ class TaskService:
     ):
         """发布 task.dispatch 事件，由 DispatchWorker 消费执行。"""
         task = await self._get_task(task_id)
+        state_str = task.state if isinstance(task.state, str) else task.state.value
+
+        context = {
+            "task_id": str(task_id),
+            "agent": target_agent,
+            "governance_type": task.governance_type,
+        }
+
+        # 跨制度机制拦截（如科举制竞选）
+        for mech_type in (task.mechanisms or []):
+            try:
+                mechanism = self._registry.get_mechanism(mech_type)
+                context = await mechanism.on_before_dispatch(str(task_id), target_agent, context)
+                if "selected_agent" in context:
+                    target_agent = context["selected_agent"]
+            except KeyError:
+                pass
+
         await self.bus.publish(
             topic=TOPIC_TASK_DISPATCH,
             trace_id=str(task.trace_id),
@@ -167,10 +228,47 @@ class TaskService:
                 "task_id": str(task_id),
                 "agent": target_agent,
                 "message": message,
-                "state": task.state.value,
+                "state": state_str,
+                "governance_type": task.governance_type,
             },
         )
         log.info(f"Dispatch requested: task {task_id} → agent {target_agent}")
+
+    # ── 治理模型查询 ──
+
+    def get_governance_info(self, governance_type: str) -> dict:
+        """获取治理模型的详细信息。"""
+        gov_model = self._registry.get_model(governance_type)
+        info = gov_model.to_info()
+        return {
+            "type": info.type,
+            "name": info.name,
+            "dynasty": info.dynasty,
+            "description": info.description,
+            "flow_pattern": info.flow_pattern,
+            "states": info.states,
+            "initial_state": info.initial_state,
+            "terminal_states": info.terminal_states,
+            "transitions": info.transitions,
+            "roles": info.roles,
+            "state_agent_map": info.state_agent_map,
+            "permission_matrix": info.permission_matrix,
+            "suitable_for": info.suitable_for,
+        }
+
+    def list_governance_models(self) -> list[dict]:
+        """列出所有可用的治理模型摘要。"""
+        return [
+            {
+                "type": m.type.value,
+                "name": m.name,
+                "dynasty": m.dynasty,
+                "description": m.description,
+                "flow_pattern": m.flow_pattern.value,
+                "suitable_for": m.suitable_for,
+            }
+            for m in self._registry.list_models()
+        ]
 
     # ── 进度/备注更新 ──
 
@@ -222,20 +320,24 @@ class TaskService:
 
     async def list_tasks(
         self,
-        state: TaskState | None = None,
+        state: TaskState | str | None = None,
         assignee_org: str | None = None,
         priority: str | None = None,
+        governance_type: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> list[Task]:
         stmt = select(Task)
         conditions = []
         if state is not None:
-            conditions.append(Task.state == state)
+            state_val = state.value if isinstance(state, TaskState) else state
+            conditions.append(Task.state == state_val)
         if assignee_org is not None:
             conditions.append(Task.assignee_org == assignee_org)
         if priority is not None:
             conditions.append(Task.priority == priority)
+        if governance_type is not None:
+            conditions.append(Task.governance_type == governance_type)
         if conditions:
             stmt = stmt.where(and_(*conditions))
         stmt = stmt.order_by(Task.created_at.desc()).limit(limit).offset(offset)
@@ -249,7 +351,8 @@ class TaskService:
         completed_tasks = {}
         for t in tasks:
             d = t.to_dict()
-            if t.state in TERMINAL_STATES:
+            state_str = t.state if isinstance(t.state, str) else t.state.value
+            if is_terminal_state(state_str):
                 completed_tasks[str(t.task_id)] = d
             else:
                 active_tasks[str(t.task_id)] = d
@@ -259,10 +362,11 @@ class TaskService:
             "last_updated": datetime.now(timezone.utc).isoformat(),
         }
 
-    async def count_tasks(self, state: TaskState | None = None) -> int:
+    async def count_tasks(self, state: TaskState | str | None = None) -> int:
         stmt = select(func.count(Task.task_id))
         if state is not None:
-            stmt = stmt.where(Task.state == state)
+            state_val = state.value if isinstance(state, TaskState) else state
+            stmt = stmt.where(Task.state == state_val)
         result = await self.db.execute(stmt)
         return result.scalar_one()
 

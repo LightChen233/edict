@@ -93,6 +93,12 @@ export const api = {
 
   createTask: (data: CreateTaskPayload) =>
     postJ<ActionResult & { taskId?: string }>(`${API_BASE}/api/create-task`, data),
+
+  // 治理制度
+  governanceList: () => fetchJ<GovernanceListResult>(`${API_BASE}/api/governance`),
+  governanceDetail: (type: string) => fetchJ<GovernanceDetail>(`${API_BASE}/api/governance/${type}`),
+  governanceTypes: () => fetchJ<GovernanceTypesResult>(`${API_BASE}/api/governance/types`),
+  mechanismsList: () => fetchJ<MechanismsListResult>(`${API_BASE}/api/governance/mechanisms/list`),
 };
 
 // ── Types ──
@@ -142,6 +148,9 @@ export interface Task {
   sourceMeta?: Record<string, unknown>;
   activity?: ActivityEntry[];
   _prev_state?: string;
+  governance_type?: string;
+  governance_config?: Record<string, unknown>;
+  mechanisms?: string[];
 }
 
 export interface SyncStatus {
@@ -376,6 +385,65 @@ export interface CreateTaskPayload {
   priority?: string;
   templateId?: string;
   params?: Record<string, string>;
+  governance_type?: string;
+  mechanisms?: string[];
+}
+
+// ── Governance Types ──
+
+export interface GovernanceModelSummary {
+  type: string;
+  name: string;
+  dynasty: string;
+  description: string;
+  flow_pattern: string;
+  suitable_for: string[];
+  states_count?: number;
+  roles_count?: number;
+}
+
+export interface GovernanceListResult {
+  models: GovernanceModelSummary[];
+  count: number;
+}
+
+export interface GovernanceRole {
+  role_id: string;
+  name: string;
+  description: string;
+  agent_id: string;
+}
+
+export interface GovernanceDetail {
+  type: string;
+  name: string;
+  dynasty: string;
+  description: string;
+  flow_pattern: string;
+  states: string[];
+  initial_state: string;
+  terminal_states: string[];
+  transitions: Record<string, string[]>;
+  roles: GovernanceRole[];
+  state_agent_map: Record<string, string>;
+  permission_matrix: Record<string, string[]>;
+  suitable_for: string[];
+}
+
+export interface GovernanceTypesResult {
+  governance_types: { value: string; label: string }[];
+  mechanism_types: { value: string; label: string }[];
+}
+
+export interface MechanismInfo {
+  type: string;
+  name: string;
+  description: string;
+}
+
+export interface MechanismsListResult {
+  mechanisms: MechanismInfo[];
+  count: number;
 }
 
 export interface RemoteSkillItem {

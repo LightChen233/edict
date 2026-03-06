@@ -41,9 +41,33 @@ export const DEPT_COLOR: Record<string, string> = {
 };
 
 export const STATE_LABEL: Record<string, string> = {
-  Inbox: '收件', Pending: '待处理', Taizi: '太子分拣', Zhongshu: '中书起草',
-  Menxia: '门下审议', Assigned: '已派发', Doing: '执行中', Review: '待审查',
-  Done: '已完成', Blocked: '阻塞', Cancelled: '已取消', Next: '待执行',
+  // 通用
+  Inbox: '收件', Pending: '待处理', Done: '已完成', Blocked: '阻塞', Cancelled: '已取消',
+  // 三省六部制
+  Taizi: '太子分拣', Zhongshu: '中书起草', Menxia: '门下审议',
+  Assigned: '已派发', Doing: '执行中', Review: '待审查', Next: '待执行',
+  // 丞相制
+  Chancellor: '丞相决策', Dispatched: '已派发', Executing: '执行中', ChancellorReview: '丞相审查',
+  // 内阁制
+  CabinetReview: '内阁审议', PiaoNi: '票拟', PiHong: '批红', Report: '汇报',
+  // 议会制
+  Proposed: '已提案', FirstReading: '一读', CommitteeReview: '委员会审查',
+  Debate: '辩论', Voting: '投票', Passed: '已通过', Rejected: '已否决',
+  // 军机处制
+  CouncilBriefing: '军机奏报', QuickDecision: '快速决策',
+  DirectExecution: '直接执行', QuickReview: '快速复核',
+  // 分封制
+  Enfeoffed: '已分封', LordPlanning: '诸侯规划',
+  LordExecuting: '诸侯执行', TributeReport: '朝贡回报',
+  // 委员会制
+  CommitteeReceived: '委员会接收', Discussion: '讨论中',
+  Consensus: '达成共识', CollectiveExecution: '集体执行', Summary: '总结',
+  // 总统制
+  PresidentReceived: '总统接收', AdvisoryConsultation: '咨询顾问',
+  PresidentDecision: '总统决策', CabinetExecution: '内阁执行', PresidentReview: '总统审查',
+  // 联邦制
+  FederalReceived: '联邦接收', StateAssignment: '分配州',
+  StateAutonomous: '州自治执行', FederalCoordination: '联邦协调',
 };
 
 export function deptColor(d: string): string {
@@ -83,19 +107,50 @@ export function getPipeStatus(t: Task): PipeStatus[] {
 
 export type TabKey =
   | 'edicts' | 'monitor' | 'officials' | 'models'
-  | 'skills' | 'sessions' | 'memorials' | 'templates' | 'morning';
+  | 'skills' | 'sessions' | 'memorials' | 'templates' | 'morning' | 'governance';
 
 export const TAB_DEFS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'edicts',    label: '旨意看板', icon: '📜' },
-  { key: 'monitor',   label: '省部调度', icon: '🏛️' },
-  { key: 'officials', label: '官员总览', icon: '👔' },
-  { key: 'models',    label: '模型配置', icon: '🤖' },
-  { key: 'skills',    label: '技能配置', icon: '🎯' },
-  { key: 'sessions',  label: '小任务',   icon: '💬' },
-  { key: 'memorials', label: '奏折阁',   icon: '📜' },
-  { key: 'templates', label: '旨库',     icon: '📋' },
-  { key: 'morning',   label: '天下要闻', icon: '🌅' },
+  { key: 'edicts',     label: '旨意看板', icon: '📜' },
+  { key: 'governance', label: '治理制度', icon: '⚖️' },
+  { key: 'monitor',    label: '省部调度', icon: '🏛️' },
+  { key: 'officials',  label: '官员总览', icon: '👔' },
+  { key: 'models',     label: '模型配置', icon: '🤖' },
+  { key: 'skills',     label: '技能配置', icon: '🎯' },
+  { key: 'sessions',   label: '小任务',   icon: '💬' },
+  { key: 'memorials',  label: '奏折阁',   icon: '📜' },
+  { key: 'templates',  label: '旨库',     icon: '📋' },
+  { key: 'morning',    label: '天下要闻', icon: '🌅' },
 ];
+
+export const GOVERNANCE_NAMES: Record<string, string> = {
+  san_sheng: '三省六部制',
+  cheng_xiang: '丞相制',
+  nei_ge: '内阁制',
+  yi_hui: '议会制',
+  jun_ji_chu: '军机处制',
+  feng_jian: '分封制',
+  wei_yuan_hui: '委员会制',
+  zong_tong: '总统制',
+  lian_bang: '联邦制',
+};
+
+export const GOVERNANCE_ICONS: Record<string, string> = {
+  san_sheng: '🏛️',
+  cheng_xiang: '👑',
+  nei_ge: '📋',
+  yi_hui: '🏛️',
+  jun_ji_chu: '⚔️',
+  feng_jian: '🗺️',
+  wei_yuan_hui: '🤝',
+  zong_tong: '🦅',
+  lian_bang: '🌐',
+};
+
+export const MECHANISM_NAMES: Record<string, string> = {
+  ke_ju: '科举制',
+  yu_shi_tai: '御史台',
+  gong_guo_bu: '功过簿',
+};
 
 // ── DEPTS for monitor ──
 
