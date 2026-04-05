@@ -1,0 +1,742 @@
+[
+  {
+    "id": "ba4e0917-5542-4c74-ac00-27c4c9d229af",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "code",
+    "title": "修复函数中的语法错误",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "cf22fcd4-41b0-4b35-9e24-02abee702db2",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "code",
+    "title": "补全缺失的 import 语句",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "urgent",
+    "multi_domain": false
+  },
+  {
+    "id": "ec3586c3-6392-4fd3-b538-ab53a7891bb6",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "writing",
+    "title": "修正段落中的拼写错误",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "urgent",
+    "multi_domain": false
+  },
+  {
+    "id": "549524b5-f55e-4a47-b674-4979208d9d8e",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "writing",
+    "title": "将被动语态改为主动语态",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "urgent",
+    "multi_domain": false
+  },
+  {
+    "id": "be11b564-b340-4e53-93a1-4a6daa70a135",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "analysis",
+    "title": "计算数据集的均值和标准差",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "84d35494-0e01-4c1d-a0d0-ed49c86a025d",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "analysis",
+    "title": "统计词频并排序",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "760cb42e-6baa-46a9-8397-2878dac0f989",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "design",
+    "title": "调整按钮颜色符合品牌规范",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "af9532dc-2ed2-4362-8a4f-86eb8c95abfb",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "design",
+    "title": "修正图标尺寸为 24×24px",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "urgent",
+    "multi_domain": false
+  },
+  {
+    "id": "b4fa54a0-4d40-46de-a135-b6a21831e022",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "research",
+    "title": "查找某 API 的官方文档链接",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "7cf96446-4234-4997-be89-5289cb5e003a",
+    "tier": 1,
+    "tier_name": "Atomic",
+    "domain": "research",
+    "title": "确认某库的最新版本号",
+    "governance_hints": [
+      "jun_ji_chu",
+      "cheng_xiang"
+    ],
+    "priority": "urgent",
+    "multi_domain": false
+  },
+  {
+    "id": "8489bad8-0d9e-4a7c-9a65-461dd7cdf1a7",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "code",
+    "title": "实现并测试一个 REST 接口",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "be72b5ea-ae5d-4bea-b53f-fd21fab768ed",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "code",
+    "title": "编写带单元测试的排序算法",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "f32cc9c8-f127-4f02-8082-543f774986d0",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "writing",
+    "title": "撰写产品功能说明（含示例）",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "189e2c25-28f0-498a-8f43-36a081f241ee",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "writing",
+    "title": "将技术文档翻译为用户友好语言",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "8c42e083-2524-4ed3-9f0b-ea96c774e4ad",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "analysis",
+    "title": "清洗数据集并生成描述性统计",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "2c2f3c65-88d6-4eb5-abb5-2e6cdd1f638a",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "analysis",
+    "title": "对比两个模型的性能指标",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "55c69f7a-eaa3-4033-afda-d0c56f0884e7",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "design",
+    "title": "设计登录页面线框图",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "e9dc7461-e459-4c51-a514-f821ca75f2c5",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "design",
+    "title": "制作组件库色板",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "530f6ced-e65b-4d58-8654-8b713ce8e855",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "research",
+    "title": "综述某技术的发展现状",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "b27f6a25-3639-4b18-ade6-f2d0d3133225",
+    "tier": 2,
+    "tier_name": "Sequential",
+    "domain": "research",
+    "title": "对比3个竞品的核心功能",
+    "governance_hints": [
+      "cheng_xiang",
+      "zong_tong",
+      "san_sheng"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "018c75fd-4651-41a9-aca7-e60bca2d1a01",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "code",
+    "title": "跨3个微服务生成集成测试报告",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "0c4ccd23-7de8-4595-8d7b-0c1f82b6b6ae",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "code",
+    "title": "并行爬取5个数据源并合并",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "661ffece-32e7-41c5-9ba1-453549e5ba85",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "writing",
+    "title": "从3个数据源生成综合周报",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "6b4c9952-09fe-4ae3-a80b-58080f5a273c",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "writing",
+    "title": "多角度撰写产品发布公告",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "659209d6-9086-40ad-ae8e-0be6997055b8",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "analysis",
+    "title": "跨部门数据汇总分析",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "2b03c53a-f0b5-4892-9afb-8eefeb08d5be",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "analysis",
+    "title": "多维度用户行为分析",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "7cda508b-a2fa-4162-a37f-f1c410af2ed0",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "design",
+    "title": "设计多平台适配的UI系统",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "cadd883a-ca52-4f47-9053-011628a17795",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "design",
+    "title": "输出完整的设计规范文档",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "f3095ebd-347b-4a8c-8aa4-a9d4a52bff2f",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "research",
+    "title": "跨领域文献综述",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "72fd580b-8837-4a5a-b227-d339476a6d0d",
+    "tier": 3,
+    "tier_name": "Parallel",
+    "domain": "research",
+    "title": "多来源数据交叉验证",
+    "governance_hints": [
+      "san_sheng",
+      "feng_jian",
+      "lian_bang",
+      "ritsuryo"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "adb159b3-92bb-4633-995d-0623df669bce",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "code",
+    "title": "PostgreSQL vs MongoDB 技术选型",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "a110329b-8809-42b6-93f9-e9bc9225e428",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "code",
+    "title": "单体 vs 微服务架构决策",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "865a730a-9d3e-479c-ac06-af3ab978c65d",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "writing",
+    "title": "制定内容策略并评估风险",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "0c973afa-4426-4d7b-a7d6-2afb0727cb8d",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "writing",
+    "title": "撰写有争议话题的平衡报告",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "d6c31a9b-c38b-4c3d-92be-3429e05c4a3b",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "analysis",
+    "title": "评估多个商业模式的可行性",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "e092802c-7430-4462-90ca-a5c0809cf073",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "analysis",
+    "title": "分析有争议的A/B测试结果",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "3fc60c22-2217-483c-9da6-81ced25174e8",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "design",
+    "title": "在易用性与功能性间做设计权衡",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "3683375a-c962-4a51-a02b-be9deb24b639",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "design",
+    "title": "评估多套设计方案并推荐",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "751f0957-2012-43e0-bbca-3977810eaada",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "research",
+    "title": "评估新兴技术的采用时机",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "0010e510-e60e-4194-b12f-19a46d9d51c3",
+    "tier": 4,
+    "tier_name": "Deliberative",
+    "domain": "research",
+    "title": "分析竞争格局并制定策略",
+    "governance_hints": [
+      "yi_hui",
+      "wei_yuan_hui",
+      "nei_ge",
+      "athenian",
+      "roman"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "6f84f1a0-249e-49d5-be68-223779932992",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "code",
+    "title": "设计可扩展的微服务架构",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "96433944-e698-4217-8654-79e9f7db2a0c",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "code",
+    "title": "规划技术债务清理路线图",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "8b71fa8a-c05e-48e6-9bbe-1bc07f7a7278",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "writing",
+    "title": "制定公司技术博客内容战略",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "75f8e1ac-c237-433e-9a73-e3412c91952a",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "writing",
+    "title": "撰写年度技术趋势报告",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "a50db409-243e-4f81-89bc-3711da2ab9de",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "analysis",
+    "title": "构建端到端数据分析平台方案",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": true
+  },
+  {
+    "id": "9ec84ec0-e8aa-4966-bdd0-7af3fb0ce0b3",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "analysis",
+    "title": "设计实验评估框架",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "d2e72ae4-ecce-4edf-b20d-5f896f8ccc6a",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "design",
+    "title": "设计完整的产品设计系统",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "af68c12c-06aa-4173-9297-a74055567ad7",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "design",
+    "title": "规划用户体验改进路线图",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "8b4d2a3d-cf04-43a2-97a7-b026a570bc2e",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "research",
+    "title": "制定3年技术研究路线图",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  },
+  {
+    "id": "3e5a0f03-6c42-43ff-9250-6bbd4bbbaaa6",
+    "tier": 5,
+    "tier_name": "Complex",
+    "domain": "research",
+    "title": "设计跨学科研究框架",
+    "governance_hints": [
+      "san_sheng",
+      "nei_ge",
+      "venetian",
+      "shura",
+      "kurultai"
+    ],
+    "priority": "normal",
+    "multi_domain": false
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "experiment": "exp-real",
+  "timestamp": "2026-03-18T04:02:21.961487+00:00",
+  "sample_size": 3,
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "san_sheng",
+      "name": "三省六部",
+      "mean_score": 0.0,
+      "completed": 0,
+      "total": 3
+    },
+    {
+      "rank": 2,
+      "governance": "roman",
+      "name": "罗马元老院",
+      "mean_score": 0.0,
+      "completed": 0,
+      "total": 3
+    }
+  ]
+}

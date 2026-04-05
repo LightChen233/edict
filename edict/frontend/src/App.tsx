@@ -8,8 +8,8 @@ import SkillsConfig from './components/SkillsConfig';
 import SessionsPanel from './components/SessionsPanel';
 import MemorialPanel from './components/MemorialPanel';
 import TemplatePanel from './components/TemplatePanel';
-import GovernancePanel from './components/GovernancePanel';
 import MorningPanel from './components/MorningPanel';
+import GovernancePanel from './components/GovernancePanel';
 import TaskModal from './components/TaskModal';
 // ConfirmDialog is used inside TaskModal as needed
 import Toaster from './components/Toaster';
@@ -82,7 +82,6 @@ export default function App() {
 
       {/* ── Panels ── */}
       {activeTab === 'edicts' && <EdictBoard />}
-      {activeTab === 'governance' && <GovernancePanel />}
       {activeTab === 'monitor' && <MonitorPanel />}
       {activeTab === 'officials' && <OfficialPanel />}
       {activeTab === 'models' && <ModelConfig />}
@@ -91,6 +90,7 @@ export default function App() {
       {activeTab === 'memorials' && <MemorialPanel />}
       {activeTab === 'templates' && <TemplatePanel />}
       {activeTab === 'morning' && <MorningPanel />}
+      {activeTab === 'governance' && <GovernancePanel />}
 
       {/* ── Overlays ── */}
       <TaskModal />

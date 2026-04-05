@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useStore, TEMPLATES, TPL_CATS, GOVERNANCE_NAMES, GOVERNANCE_ICONS, MECHANISM_NAMES } from '../store';
+import { useStore, TEMPLATES, TPL_CATS } from '../store';
 import type { Template } from '../store';
 import { api } from '../api';
 
@@ -12,8 +12,6 @@ export default function TemplatePanel() {
   const [formTpl, setFormTpl] = useState<Template | null>(null);
   const [formVals, setFormVals] = useState<Record<string, string>>({});
   const [previewCmd, setPreviewCmd] = useState('');
-  const [selectedGov, setSelectedGov] = useState('san_sheng');
-  const [selectedMechs, setSelectedMechs] = useState<string[]>([]);
 
   let tpls = TEMPLATES;
   if (tplCatFilter !== '全部') tpls = tpls.filter((t) => t.cat === tplCatFilter);
@@ -75,8 +73,6 @@ export default function TemplatePanel() {
         priority: 'normal',
         templateId: formTpl.id,
         params,
-        governance_type: selectedGov,
-        mechanisms: selectedMechs,
       });
       if (r.ok) {
         toast(`📜 ${r.taskId} 旨意已下达`, 'ok');
@@ -152,38 +148,6 @@ export default function TemplatePanel() {
               </div>
 
               <form className="tpl-form" onSubmit={execute}>
-                {/* 治理制度选择 */}
-                <div className="tpl-field">
-                  <label className="tpl-label">治理制度</label>
-                  <select
-                    className="tpl-input"
-                    value={selectedGov}
-                    onChange={(e) => setSelectedGov(e.target.value)}
-                  >
-                    {Object.entries(GOVERNANCE_NAMES).map(([k, v]) => (
-                      <option key={k} value={k}>{GOVERNANCE_ICONS[k]} {v}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="tpl-field">
-                  <label className="tpl-label">叠加机制（可选）</label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {Object.entries(MECHANISM_NAMES).map(([k, v]) => (
-                      <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedMechs.includes(k)}
-                          onChange={(e) => {
-                            if (e.target.checked) setSelectedMechs([...selectedMechs, k]);
-                            else setSelectedMechs(selectedMechs.filter((m) => m !== k));
-                          }}
-                        />
-                        {v}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
                 {formTpl.params.map((p) => (
                   <div className="tpl-field" key={p.key}>
                     <label className="tpl-label">

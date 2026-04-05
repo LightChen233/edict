@@ -1,0 +1,15 @@
+{
+  "experiment": "exp-real",
+  "timestamp": "2026-03-18T13:38:59.122403+00:00",
+  "sample_size": 10,
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "kurultai",
+      "name": "忽里勒台",
+      "mean_score": 0.2,
+      "completed": 1,
+      "total": 10
+    }
+  ]
+}

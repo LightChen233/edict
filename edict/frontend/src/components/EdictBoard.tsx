@@ -1,4 +1,4 @@
-import { useStore, isEdict, isArchived, getPipeStatus, stateLabel, deptColor, PIPE, GOVERNANCE_NAMES, GOVERNANCE_ICONS } from '../store';
+import { useStore, isEdict, isArchived, getPipeStatus, stateLabel, deptColor, PIPE } from '../store';
 import { api, type Task } from '../api';
 
 // 排序权重
@@ -81,11 +81,6 @@ function EdictCard({ task }: { task: Task }) {
       <div className="ec-meta">
         <span className={`tag ${stCls}`}>{stateLabel(task)}</span>
         {task.org && <span className={`tag ${deptCls}`}>{task.org}</span>}
-        {task.governance_type && task.governance_type !== 'san_sheng' && (
-          <span className="tag" style={{ background: '#1a365d', color: '#63b3ed', fontSize: 10 }}>
-            {GOVERNANCE_ICONS[task.governance_type] || '🏛️'} {GOVERNANCE_NAMES[task.governance_type] || task.governance_type}
-          </span>
-        )}
         {curStage && (
           <span style={{ fontSize: 11, color: 'var(--muted)' }}>
             当前: <b style={{ color: deptColor(curStage.dept) }}>{curStage.dept} · {curStage.action}</b>

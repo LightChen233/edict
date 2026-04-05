@@ -1,0 +1,15 @@
+{
+  "experiment": "exp-real",
+  "timestamp": "2026-03-18T13:02:06.898116+00:00",
+  "sample_size": 10,
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "zong_tong",
+      "name": "总统制",
+      "mean_score": 0.2,
+      "completed": 10,
+      "total": 10
+    }
+  ]
+}

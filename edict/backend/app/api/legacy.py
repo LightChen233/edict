@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import get_db
-from ..models.task import Task, TaskState
+from ..models.task import Task
 from ..services.event_bus import get_event_bus
 from ..services.task_service import TaskService
 
@@ -62,13 +62,8 @@ async def legacy_transition(
     bus = await get_event_bus()
     svc = TaskService(db, bus)
     try:
-        new_state = TaskState(body.new_state)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid state: {body.new_state}")
-
-    try:
-        t = await svc.transition_state(task.task_id, new_state, body.agent, body.reason)
-        return {"task_id": str(t.task_id), "state": t.state.value}
+        t = await svc.transition_state(task.task_id, body.new_state, body.agent, body.reason)
+        return {"task_id": str(t.task_id), "state": t.state}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

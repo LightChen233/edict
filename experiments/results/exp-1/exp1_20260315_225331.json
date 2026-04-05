@@ -1,0 +1,56 @@
+{
+  "experiment": "exp-1",
+  "model": "anthropic/claude-sonnet-4-6",
+  "timestamp": "2026-03-15T14:53:31.449722+00:00",
+  "task_weights": {
+    "task_23_governance_routing": 0.25,
+    "task_24_governance_state_machine": 0.2,
+    "task_25_governance_tradeoff_analysis": 0.25,
+    "task_26_governance_mechanism_composition": 0.2,
+    "task_27_governance_historical_mapping": 0.1
+  },
+  "results": [
+    {
+      "governance": "san_sheng",
+      "weighted_score": 0.708,
+      "efficiency_index": 6.415e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.7888,
+        "task_24_governance_state_machine": 0.9203,
+        "task_25_governance_tradeoff_analysis": 0.7029,
+        "task_26_governance_mechanism_composition": 0.437,
+        "task_27_governance_historical_mapping": 0.6365
+      },
+      "runs": 1
+    },
+    {
+      "governance": "jun_ji_chu",
+      "weighted_score": 0.7304,
+      "efficiency_index": 8.572e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.5544,
+        "task_24_governance_state_machine": 0.7498,
+        "task_25_governance_tradeoff_analysis": 0.6773,
+        "task_26_governance_mechanism_composition": 0.948,
+        "task_27_governance_historical_mapping": 0.8295
+      },
+      "runs": 1
+    }
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "jun_ji_chu",
+      "name": "军机处",
+      "weighted_score": 0.7304,
+      "efficiency_index": 8.572e-05
+    },
+    {
+      "rank": 2,
+      "governance": "san_sheng",
+      "name": "三省六部",
+      "weighted_score": 0.708,
+      "efficiency_index": 6.415e-05
+    }
+  ]
+}

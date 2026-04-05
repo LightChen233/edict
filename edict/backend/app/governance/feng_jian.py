@@ -1,103 +1,51 @@
-"""分封制 — 周代去中心化治理模型。
+"""分封制 (周) — 并发自治，诸侯各自执行，天子干预兜底。"""
 
-流转: 用户 → 天子分封 → 诸侯自治(独立规划+执行) → 朝贡回报 → 完成
-核心: 高度自治、松耦合、各领域独立运行
-"""
-
-from .base import GovernanceModel, GovernanceType, FlowPattern, RoleDefinition
+from .base import GovernanceModel, GovernanceType
 
 
 class FengJianModel(GovernanceModel):
-    """分封制 — 去中心化自治。"""
-
-    S_PENDING = "Pending"
-    S_ENFEOFFED = "Enfeoffed"
-    S_LORD_PLANNING = "LordPlanning"
-    S_LORD_EXECUTING = "LordExecuting"
-    S_TRIBUTE_REPORT = "TributeReport"
-    S_DONE = "Done"
-    S_BLOCKED = "Blocked"
-    S_CANCELLED = "Cancelled"
-
-    @property
-    def type(self) -> GovernanceType:
-        return GovernanceType.FENG_JIAN
-
-    @property
-    def name(self) -> str:
-        return "分封制"
-
-    @property
-    def dynasty(self) -> str:
-        return "周"
-
-    @property
-    def description(self) -> str:
-        return (
-            "西周分封制度，天子将领地分封给诸侯，诸侯在领地内有完全自治权，"
-            "只需定期朝贡回报。去中心化、高度自治。"
-            "适合多项目并行管理和独立模块开发。"
-        )
-
-    @property
-    def flow_pattern(self) -> FlowPattern:
-        return FlowPattern.DECENTRALIZED
-
-    @property
-    def suitable_for(self) -> list[str]:
-        return ["多项目并行", "模块独立开发", "微服务架构", "松耦合协作"]
+    type = GovernanceType.FENG_JIAN
+    name = "分封制"
+    description = "周代分封制：天子分派→诸侯并发自治执行→朝贡汇报，失联诸侯由天子接管"
+    dynasty = "周"
+    topology = "parallel-autonomous"
 
     def get_states(self) -> list[str]:
-        return [
-            self.S_PENDING, self.S_ENFEOFFED, self.S_LORD_PLANNING,
-            self.S_LORD_EXECUTING, self.S_TRIBUTE_REPORT,
-            self.S_DONE, self.S_BLOCKED, self.S_CANCELLED,
-        ]
+        return ["Pending", "Dispatched", "Doing", "Tribute", "Done", "Cancelled"]
 
     def get_initial_state(self) -> str:
-        return self.S_ENFEOFFED
+        return "Pending"
 
     def get_terminal_states(self) -> set[str]:
-        return {self.S_DONE, self.S_CANCELLED}
+        return {"Done", "Cancelled"}
 
     def get_transitions(self) -> dict[str, set[str]]:
         return {
-            self.S_ENFEOFFED: {self.S_LORD_PLANNING, self.S_CANCELLED},
-            self.S_LORD_PLANNING: {self.S_LORD_EXECUTING, self.S_CANCELLED, self.S_BLOCKED},
-            self.S_LORD_EXECUTING: {self.S_TRIBUTE_REPORT, self.S_DONE, self.S_BLOCKED, self.S_CANCELLED},
-            self.S_TRIBUTE_REPORT: {self.S_DONE, self.S_LORD_EXECUTING, self.S_CANCELLED},
-            self.S_BLOCKED: {self.S_ENFEOFFED, self.S_LORD_PLANNING, self.S_LORD_EXECUTING},
+            "Pending":    {"Dispatched", "Cancelled"},
+            "Dispatched": {"Doing", "Cancelled"},
+            "Doing":      {"Tribute", "Cancelled"},
+            "Tribute":    {"Done", "Doing", "Cancelled"},  # 汇报不合格→重做
         }
-
-    def get_roles(self) -> list[RoleDefinition]:
-        return [
-            RoleDefinition("tianzi", "天子", "最高统治者，分封领地、接受朝贡", "tianzi"),
-            RoleDefinition("zhuhou", "诸侯", "领地自治者，独立规划和执行", None),
-        ]
 
     def get_state_agent_map(self) -> dict[str, str]:
         return {
-            self.S_ENFEOFFED: "tianzi",
-            self.S_TRIBUTE_REPORT: "tianzi",
+            "Pending":    "tianzi",
+            "Dispatched": "tianzi",
+            "Doing":      "lord",    # 诸侯，具体由 assignee_org 决定
+            "Tribute":    "tianzi",
         }
 
-    def get_org_agent_map(self) -> dict[str, str]:
-        return {
-            "户部": "hubu",
-            "礼部": "libu",
-            "兵部": "bingbu",
-            "刑部": "xingbu",
-            "工部": "gongbu",
-            "吏部": "libu_hr",
-        }
-
-    def get_permission_matrix(self) -> dict[str, set[str]]:
-        return {
-            "tianzi": {"hubu", "libu", "bingbu", "xingbu", "gongbu", "libu_hr"},
-            "hubu": {"tianzi"},
-            "libu": {"tianzi"},
-            "bingbu": {"tianzi"},
-            "xingbu": {"tianzi"},
-            "gongbu": {"tianzi"},
-            "libu_hr": {"tianzi"},
-        }
+    def validate_transition(self, from_state: str, to_state: str, context: dict | None = None) -> bool:
+        allowed = self.get_transitions().get(from_state, set())
+        if to_state not in allowed:
+            return False
+        # 朝贡汇报不合格守卫：tribute_passed=False 才退回 Doing
+        if from_state == "Tribute" and to_state == "Doing":
+            return not (context or {}).get("tribute_passed", True)
+        # 天子干预守卫：lost_lords 超过阈值时天子可强制接管（外部逻辑触发 Cancelled）
+        if from_state == "Doing" and to_state == "Cancelled":
+            ctx = context or {}
+            lost = ctx.get("lost_lords", 0)
+            threshold = ctx.get("intervention_threshold", 2)
+            return lost >= threshold or ctx.get("tianzi_intervene", False)
+        return True

@@ -1,0 +1,15 @@
+{
+  "experiment": "exp-real",
+  "timestamp": "2026-03-18T13:01:46.689458+00:00",
+  "sample_size": 10,
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "san_sheng",
+      "name": "三省六部",
+      "mean_score": 0.1,
+      "completed": 10,
+      "total": 10
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Python 调试程序: 当前文件",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--model", "gpt-5-mini",
+                "--tasks", "task_00_sanity,task_01_calendar",
+                "--institutions", "all"
+            ]
+        },
+        {
+            "name": "exp-1: dry-run (2种治理)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/exp-1.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--model", "anthropic/claude-sonnet-4-6",
+                "--governance", "san_sheng,jun_ji_chu",
+                "--dry-run"
+            ]
+        },
+        {
+            "name": "exp-1: 真实模式 (san_sheng)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/exp-1.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--model", "anthropic/claude-sonnet-4-6",
+                "--governance", "san_sheng",
+                "--runs", "1"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "pinchbench: benchmark.py (governance suite)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/pinchbench/scripts/benchmark.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}/pinchbench",
+            "args": [
+                "--model", "anthropic/claude-sonnet-4-6",
+                "--suite", "task_23_governance_routing",
+                "--no-upload"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/pinchbench/scripts"
+            }
+        },
+        {
+            "name": "exp-1: 全量 (15种治理)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/experiments/exp-1.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--model", "anthropic/claude-sonnet-4-6",
+                "--runs", "1"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}

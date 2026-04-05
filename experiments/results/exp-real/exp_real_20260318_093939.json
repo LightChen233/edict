@@ -1,0 +1,47 @@
+{
+  "experiment": "exp-real",
+  "timestamp": "2026-03-18T09:39:39.178256+00:00",
+  "sample_size": 3,
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "cheng_xiang",
+      "name": "丞相制",
+      "mean_score": 0.2,
+      "completed": 3,
+      "total": 3
+    },
+    {
+      "rank": 2,
+      "governance": "san_sheng",
+      "name": "三省六部",
+      "mean_score": 0.0,
+      "completed": 0,
+      "total": 3
+    },
+    {
+      "rank": 3,
+      "governance": "roman",
+      "name": "罗马元老院",
+      "mean_score": 0.0,
+      "completed": 0,
+      "total": 3
+    },
+    {
+      "rank": 4,
+      "governance": "nei_ge",
+      "name": "内阁制",
+      "mean_score": 0.0,
+      "completed": 0,
+      "total": 3
+    },
+    {
+      "rank": 5,
+      "governance": "jun_ji_chu",
+      "name": "军机处",
+      "mean_score": 0.0,
+      "completed": 0,
+      "total": 3
+    }
+  ]
+}

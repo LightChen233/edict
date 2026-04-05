@@ -1,4 +1,4 @@
-"""Tasks API — 任务的 CRUD 和状态流转（支持多制度治理）。"""
+"""Tasks API — 任务的 CRUD 和状态流转。"""
 
 import uuid
 import logging
@@ -9,7 +9,6 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db import get_db
-from ..models.task import TaskState
 from ..services.event_bus import EventBus, get_event_bus
 from ..services.task_service import TaskService
 
@@ -28,7 +27,7 @@ class TaskCreate(BaseModel):
     tags: list[str] = []
     meta: dict | None = None
     governance_type: str = "san_sheng"
-    governance_config: dict | None = None
+    governance_config: dict = {}
     mechanisms: list[str] = []
 
 
@@ -61,9 +60,6 @@ class TaskOut(BaseModel):
     assignee_org: str | None
     creator: str
     tags: list[str]
-    governance_type: str = "san_sheng"
-    governance_config: dict = {}
-    mechanisms: list[str] = []
     flow_log: list
     progress_log: list
     todos: list
@@ -91,17 +87,15 @@ async def list_tasks(
     state: str | None = None,
     assignee_org: str | None = None,
     priority: str | None = None,
-    governance_type: str | None = None,
     limit: int = Query(default=50, le=200),
     offset: int = Query(default=0, ge=0),
     svc: TaskService = Depends(get_task_service),
 ):
-    """获取任务列表（支持按治理制度过滤）。"""
+    """获取任务列表。"""
     tasks = await svc.list_tasks(
         state=state,
         assignee_org=assignee_org,
         priority=priority,
-        governance_type=governance_type,
         limit=limit,
         offset=offset,
     )
@@ -117,9 +111,11 @@ async def live_status(svc: TaskService = Depends(get_task_service)):
 @router.get("/stats")
 async def task_stats(svc: TaskService = Depends(get_task_service)):
     """任务统计。"""
+    from ..models.task import TaskState
+    all_states = [v for k, v in vars(TaskState).items() if not k.startswith("_")]
     stats = {}
-    for s in TaskState:
-        stats[s.value] = await svc.count_tasks(s)
+    for s in all_states:
+        stats[s] = await svc.count_tasks(s)
     total = sum(stats.values())
     return {"total": total, "by_state": stats}
 
@@ -129,33 +125,21 @@ async def create_task(
     body: TaskCreate,
     svc: TaskService = Depends(get_task_service),
 ):
-    """创建新任务（支持选择治理制度）。"""
-    try:
-        task = await svc.create_task(
-            title=body.title,
-            description=body.description,
-            priority=body.priority,
-            assignee_org=body.assignee_org,
-            creator=body.creator,
-            tags=body.tags,
-            meta=body.meta,
-            governance_type=body.governance_type,
-            governance_config=body.governance_config,
-            mechanisms=body.mechanisms,
-        )
-        return {
-            "task_id": str(task.task_id),
-            "trace_id": str(task.trace_id),
-            "state": task.state,
-            "governance_type": task.governance_type,
-        }
-    except (ValueError, KeyError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    """创建新任务。"""
+    task = await svc.create_task(
+        title=body.title,
+        priority=body.priority,
+        assignee_org=body.assignee_org,
+        governance_type=body.governance_type,
+        governance_config=body.governance_config,
+        mechanisms=body.mechanisms,
+    )
+    return {"task_id": task.id, "state": task.state}
 
 
 @router.get("/{task_id}")
 async def get_task(
-    task_id: uuid.UUID,
+    task_id: str,
     svc: TaskService = Depends(get_task_service),
 ):
     """获取任务详情。"""
@@ -172,7 +156,7 @@ async def transition_task(
     body: TaskTransition,
     svc: TaskService = Depends(get_task_service),
 ):
-    """执行状态流转（根据任务绑定的治理制度校验合法性）。"""
+    """执行状态流转。"""
     try:
         task = await svc.transition_state(
             task_id=task_id,
@@ -180,13 +164,7 @@ async def transition_task(
             agent=body.agent,
             reason=body.reason,
         )
-        state_val = task.state if isinstance(task.state, str) else task.state.value
-        return {
-            "task_id": str(task.task_id),
-            "state": state_val,
-            "governance_type": task.governance_type,
-            "message": "ok",
-        }
+        return {"task_id": str(task.id), "state": task.state, "message": "ok"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

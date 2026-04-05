@@ -1,0 +1,15 @@
+{
+  "experiment": "exp-real",
+  "timestamp": "2026-03-18T13:14:33.036212+00:00",
+  "sample_size": 10,
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "lian_bang",
+      "name": "联邦制",
+      "mean_score": 0.2,
+      "completed": 10,
+      "total": 10
+    }
+  ]
+}

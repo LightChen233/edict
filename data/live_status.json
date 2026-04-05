@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-03-19 03:53:37",
+  "taskSource": "tasks_source.json",
+  "officials": [],
+  "tasks": [],
+  "history": [],
+  "metrics": {
+    "officialCount": 0,
+    "todayDone": 0,
+    "totalDone": 0,
+    "inProgress": 0,
+    "blocked": 0
+  },
+  "syncStatus": {},
+  "health": {
+    "syncOk": false,
+    "syncLatencyMs": null,
+    "missingFieldCount": 0
+  }
+}

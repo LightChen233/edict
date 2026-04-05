@@ -20,8 +20,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .services.event_bus import get_event_bus
-from .api import tasks, agents, events, admin, websocket, governance
+from .api import tasks, agents, events, admin, websocket
 from .api import legacy
+from .api import governance
 
 logging.basicConfig(
     level=logging.INFO,
@@ -65,12 +66,12 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(tasks.router, prefix="/api/tasks", tags=["tasks"])
-app.include_router(governance.router, prefix="/api/governance", tags=["governance"])
 app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
 app.include_router(events.router, prefix="/api/events", tags=["events"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(websocket.router, tags=["websocket"])
 app.include_router(legacy.router, prefix="/api/tasks", tags=["legacy"])
+app.include_router(governance.router)
 
 
 @app.get("/health")
@@ -85,7 +86,6 @@ async def api_root():
         "version": "2.0.0",
         "endpoints": {
             "tasks": "/api/tasks",
-            "governance": "/api/governance",
             "agents": "/api/agents",
             "events": "/api/events",
             "admin": "/api/admin",

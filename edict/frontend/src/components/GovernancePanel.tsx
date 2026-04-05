@@ -1,227 +1,179 @@
-import { useState, useEffect } from 'react';
-import { api } from '../api';
-import type { GovernanceModelSummary, GovernanceDetail, MechanismInfo } from '../api';
-import { GOVERNANCE_ICONS, MECHANISM_NAMES } from '../store';
+/**
+ * GovernancePanel — 治理制度选择器 + 状态机说明
+ */
 
-const FLOW_PATTERN_LABELS: Record<string, string> = {
-  linear: '线性流水线',
-  hub_spoke: '中心辐射型',
-  collective: '集体商议',
-  debate_vote: '辩论投票',
-  fast_track: '极简快速',
-  decentralized: '去中心化',
-  flat_consensus: '扁平共识',
-  executive_advisory: '强执行+顾问',
-  multi_level: '多级治理',
+import { useEffect, useState } from 'react';
+import { api, type GovernanceModelInfo } from '../api';
+
+const TOPOLOGY_LABEL: Record<string, string> = {
+  'hub-and-spoke': '中枢辐射',
+  'pipeline':      '流水线',
+  'consensus':     '共识制',
+  'parallel':      '并发自治',
+  'deliberative':  '辩论投票',
+  'nested':        '嵌套委员会',
+};
+
+const DYNASTY_COLOR: Record<string, string> = {
+  '唐': '#e8a040', '秦汉': '#ff9a6a', '明': '#a07aff', '清': '#ff5270',
+  '周': '#6aef9a', '现代': '#6a9eff', '古希腊': '#f5c842', '古罗马': '#cc8844',
+  '中世纪': '#9b59b6', '蒙古': '#44aaff', '奈良': '#ff6b9d', '伊斯兰': '#2ecc8a',
 };
 
 export default function GovernancePanel() {
-  const [models, setModels] = useState<GovernanceModelSummary[]>([]);
-  const [mechanisms, setMechanisms] = useState<MechanismInfo[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [detail, setDetail] = useState<GovernanceDetail | null>(null);
+  const [models, setModels] = useState<GovernanceModelInfo[]>([]);
+  const [selected, setSelected] = useState<GovernanceModelInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([api.governanceList(), api.mechanismsList()])
-      .then(([gl, ml]) => {
-        setModels(gl.models);
-        setMechanisms(ml.mechanisms);
-        setLoading(false);
+    api.governanceList()
+      .then((r) => {
+        setModels(r.models);
+        if (r.models.length > 0) setSelected(r.models[0]);
       })
-      .catch(() => setLoading(false));
+      .catch(() => setError('无法加载治理模型，请确认后端已启动'))
+      .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!selected) {
-      setDetail(null);
-      return;
-    }
-    api.governanceDetail(selected).then(setDetail).catch(() => setDetail(null));
-  }, [selected]);
-
-  if (loading) return <div className="p-8 text-center text-gray-400">加载治理制度数据...</div>;
+  if (loading) return <div style={{ padding: 32, color: 'var(--muted)' }}>加载治理模型…</div>;
+  if (error)   return <div style={{ padding: 32, color: '#ff5270' }}>{error}</div>;
 
   return (
-    <div className="p-4 space-y-6">
-      {/* 制度概览 */}
-      <div>
-        <h2 className="text-lg font-bold mb-3">治理制度总览</h2>
-        <p className="text-sm text-gray-400 mb-4">
-          9 种基础治理制度 + 3 种跨制度机制。每个任务可独立选择治理模式。
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {models.map((m) => (
-            <div
-              key={m.type}
-              onClick={() => setSelected(selected === m.type ? null : m.type)}
-              className={`cursor-pointer rounded-lg border p-4 transition-all hover:border-blue-400 ${
-                selected === m.type
-                  ? 'border-blue-500 bg-blue-900/20 ring-1 ring-blue-500/50'
-                  : 'border-gray-700 bg-gray-800/50'
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">{GOVERNANCE_ICONS[m.type] || '🏛️'}</span>
-                <span className="font-bold">{m.name}</span>
-                <span className="text-xs text-gray-500 ml-auto">{m.dynasty}</span>
-              </div>
-              <p className="text-xs text-gray-400 mb-2 line-clamp-2">{m.description}</p>
-              <div className="flex flex-wrap gap-1">
-                <span className="text-[10px] px-1.5 py-0.5 bg-gray-700 rounded">
-                  {FLOW_PATTERN_LABELS[m.flow_pattern] || m.flow_pattern}
-                </span>
-                {m.states_count && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray-700 rounded">
-                    {m.states_count} 状态
-                  </span>
-                )}
-                {m.roles_count && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-gray-700 rounded">
-                    {m.roles_count} 角色
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {m.suitable_for.slice(0, 3).map((s) => (
-                  <span key={s} className="text-[10px] px-1.5 py-0.5 bg-blue-900/30 text-blue-300 rounded">
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+    <div style={{ display: 'flex', gap: 16, padding: 16, height: '100%', overflow: 'hidden' }}>
+      {/* 左侧：模型列表 */}
+      <div style={{ width: 220, flexShrink: 0, overflowY: 'auto' }}>
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>
+          {models.length} 种治理制度
         </div>
-      </div>
-
-      {/* 跨制度机制 */}
-      <div>
-        <h2 className="text-lg font-bold mb-3">跨制度机制</h2>
-        <p className="text-sm text-gray-400 mb-3">可叠加到任何基础制度上的增强机制。</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {mechanisms.map((m) => (
-            <div key={m.type} className="rounded-lg border border-gray-700 bg-gray-800/50 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">
-                  {m.type === 'ke_ju' ? '📝' : m.type === 'yu_shi_tai' ? '👁️' : '📊'}
-                </span>
-                <span className="font-bold">{MECHANISM_NAMES[m.type] || m.name}</span>
-              </div>
-              <p className="text-xs text-gray-400">{m.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 制度详情 */}
-      {detail && (
-        <div className="border border-gray-700 rounded-lg bg-gray-800/30 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl">{GOVERNANCE_ICONS[detail.type] || '🏛️'}</span>
-            <div>
-              <h3 className="text-xl font-bold">{detail.name}</h3>
-              <span className="text-xs text-gray-500">{detail.dynasty} · {FLOW_PATTERN_LABELS[detail.flow_pattern] || detail.flow_pattern}</span>
+        {models.map((m) => (
+          <div
+            key={m.type}
+            onClick={() => setSelected(m)}
+            style={{
+              padding: '8px 12px',
+              marginBottom: 4,
+              borderRadius: 6,
+              cursor: 'pointer',
+              background: selected?.type === m.type ? 'var(--accent-dim, #1e2a3a)' : 'transparent',
+              borderLeft: selected?.type === m.type ? '3px solid var(--accent, #6a9eff)' : '3px solid transparent',
+              transition: 'background 0.15s',
+            }}
+          >
+            <div style={{ fontWeight: 600, fontSize: 13 }}>{m.name}</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+              <span style={{
+                background: DYNASTY_COLOR[m.dynasty] || '#6a9eff',
+                color: '#000',
+                borderRadius: 3,
+                padding: '1px 5px',
+                fontSize: 10,
+                marginRight: 4,
+              }}>{m.dynasty}</span>
+              {TOPOLOGY_LABEL[m.topology] || m.topology}
             </div>
           </div>
-          <p className="text-sm text-gray-300 mb-4">{detail.description}</p>
+        ))}
+      </div>
 
-          {/* 状态流转 */}
-          <div className="mb-4">
-            <h4 className="text-sm font-bold mb-2 text-gray-200">状态流转</h4>
-            <div className="flex flex-wrap items-center gap-1 mb-2">
-              {detail.states.map((s, i) => {
-                const isInitial = s === detail.initial_state;
-                const isTerminal = detail.terminal_states.includes(s);
+      {/* 右侧：详情 */}
+      {selected && (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {/* 标题 */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 20, fontWeight: 700 }}>{selected.name}</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>{selected.description}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+              <Chip label={`来源：${selected.dynasty}`} color={DYNASTY_COLOR[selected.dynasty]} />
+              <Chip label={`拓扑：${TOPOLOGY_LABEL[selected.topology] || selected.topology}`} />
+              <Chip label={`${selected.states.length} 个状态`} />
+              <Chip label={`初始：${selected.initial_state}`} color="#6aef9a" />
+            </div>
+          </div>
+
+          {/* 状态机流程 */}
+          <Section title="状态机流程">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+              {selected.states.map((s, i) => {
+                const isTerminal = selected.terminal_states.includes(s);
+                const isInitial  = s === selected.initial_state;
                 return (
-                  <span key={s} className="flex items-center gap-1">
-                    {i > 0 && <span className="text-gray-600 text-xs">→</span>}
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        isInitial
-                          ? 'bg-green-900/40 text-green-300 border border-green-700'
-                          : isTerminal
-                          ? 'bg-red-900/40 text-red-300 border border-red-700'
-                          : 'bg-gray-700 text-gray-300'
-                      }`}
-                    >
-                      {s}
-                    </span>
-                  </span>
+                  <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <StateBox state={s} isInitial={isInitial} isTerminal={isTerminal} />
+                    {i < selected.states.length - 1 && (
+                      <span style={{ color: 'var(--muted)', fontSize: 16 }}>→</span>
+                    )}
+                  </div>
                 );
               })}
             </div>
-            <div className="text-[10px] text-gray-500">
-              <span className="text-green-400">●</span> 初始状态 &nbsp;
-              <span className="text-red-400">●</span> 终态
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--muted)', display: 'flex', gap: 12 }}>
+              <span><span style={{ color: '#6aef9a' }}>■</span> 初始状态</span>
+              <span><span style={{ color: '#ff5270' }}>■</span> 终态</span>
+              <span><span style={{ color: '#6a9eff' }}>■</span> 中间状态</span>
             </div>
-          </div>
+          </Section>
 
-          {/* 流转规则 */}
-          <div className="mb-4">
-            <h4 className="text-sm font-bold mb-2 text-gray-200">流转规则</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-              {Object.entries(detail.transitions).map(([from, tos]) => (
-                <div key={from} className="text-xs flex items-center gap-1">
-                  <span className="font-mono bg-gray-700 px-1.5 py-0.5 rounded min-w-[100px]">{from}</span>
-                  <span className="text-gray-600">→</span>
-                  <span className="text-gray-400">{tos.join(' / ')}</span>
-                </div>
+          {/* 终态 */}
+          <Section title="终止状态">
+            <div style={{ display: 'flex', gap: 6 }}>
+              {selected.terminal_states.map((s) => (
+                <StateBox key={s} state={s} isTerminal />
               ))}
             </div>
-          </div>
+          </Section>
 
-          {/* 角色 */}
-          <div className="mb-4">
-            <h4 className="text-sm font-bold mb-2 text-gray-200">角色定义</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {detail.roles.map((r) => (
-                <div key={r.role_id} className="flex items-center gap-2 text-xs bg-gray-800 rounded p-2">
-                  <span className="font-bold text-blue-300">{r.name}</span>
-                  <span className="text-gray-400 flex-1">{r.description}</span>
-                  {r.agent_id && (
-                    <span className="font-mono text-[10px] bg-gray-700 px-1 rounded">{r.agent_id}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 权限矩阵 */}
-          <div>
-            <h4 className="text-sm font-bold mb-2 text-gray-200">权限矩阵</h4>
-            <div className="overflow-x-auto">
-              <table className="text-[10px] w-full">
-                <thead>
-                  <tr className="border-b border-gray-700">
-                    <th className="text-left p-1 text-gray-400">From ↓ → To</th>
-                    {Object.keys(detail.permission_matrix).map((k) => (
-                      <th key={k} className="p-1 text-center text-gray-400">{k}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(detail.permission_matrix).map(([from, tos]) => (
-                    <tr key={from} className="border-b border-gray-800">
-                      <td className="p-1 font-bold text-gray-300">{from}</td>
-                      {Object.keys(detail.permission_matrix).map((col) => (
-                        <td key={col} className="p-1 text-center">
-                          {tos.includes(col) ? (
-                            <span className="text-green-400">✓</span>
-                          ) : from === col ? (
-                            <span className="text-gray-600">—</span>
-                          ) : (
-                            <span className="text-gray-700">·</span>
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          {/* 类型标识 */}
+          <Section title="模型标识">
+            <code style={{ fontSize: 12, background: 'var(--bg2, #1a1a2e)', padding: '4px 8px', borderRadius: 4 }}>
+              governance_type = "{selected.type}"
+            </code>
+          </Section>
         </div>
       )}
+    </div>
+  );
+}
+
+function Chip({ label, color }: { label: string; color?: string }) {
+  return (
+    <span style={{
+      fontSize: 11,
+      padding: '2px 8px',
+      borderRadius: 4,
+      background: color ? color + '33' : 'var(--bg2, #1a1a2e)',
+      color: color || 'var(--muted)',
+      border: `1px solid ${color || 'var(--border, #333)'}`,
+    }}>
+      {label}
+    </span>
+  );
+}
+
+function StateBox({ state, isInitial, isTerminal }: { state: string; isInitial?: boolean; isTerminal?: boolean }) {
+  const color = isInitial ? '#6aef9a' : isTerminal ? '#ff5270' : '#6a9eff';
+  return (
+    <span style={{
+      padding: '3px 10px',
+      borderRadius: 4,
+      fontSize: 12,
+      fontWeight: 500,
+      background: color + '22',
+      border: `1px solid ${color}`,
+      color,
+    }}>
+      {state}
+    </span>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+        {title}
+      </div>
+      {children}
     </div>
   );
 }

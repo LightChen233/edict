@@ -1,23 +1,26 @@
-"""Orchestrator Worker — 消费事件总线，驱动多制度任务状态机。
+"""Orchestrator Worker — 消费事件总线，驱动任务状态机。
 
 监听 topic:
-- task.created → 根据治理模型派发给对应初始 agent
-- task.status → 根据治理模型确定下一个 agent 并派发
-- task.completed → 记录完成，触发跨制度机制回调
+- task.created → 自动派发给太子 agent
+- task.planning.complete → 中书审议完成 → 流转门下
+- task.review.result → 门下审核 → 通过则 Assigned，退回则 Replan
+- task.status → 处理各种状态变更
 - task.stalled → 处理停滞任务
 
-核心改造: 不再硬编码三省六部的映射，而是通过 GovernanceRegistry
-动态获取任务对应的治理模型来确定状态流转和 Agent 派发。
+这是系统的核心编排器，取代旧架构中 daemon 线程 + 定时扫描的角色。
+得益于 Redis Streams ACK 机制：即使 worker 崩溃，未 ACK 的事件
+会被其他消费者自动认领，永不丢失。
 """
 
 import asyncio
 import logging
 import signal
+from contextlib import asynccontextmanager
 
 from ..config import get_settings
 from ..db import async_session
-from ..governance import get_registry
-from ..models.task import is_terminal_state
+from ..models.task import STATE_AGENT_MAP, ORG_AGENT_MAP
+from ..governance.registry import registry as governance_registry
 from ..services.event_bus import (
     EventBus,
     TOPIC_TASK_CREATED,
@@ -33,6 +36,7 @@ log = logging.getLogger("edict.orchestrator")
 GROUP = "orchestrator"
 CONSUMER = "orch-1"
 
+# 需要监听的 topics
 WATCHED_TOPICS = [
     TOPIC_TASK_CREATED,
     TOPIC_TASK_STATUS,
@@ -42,23 +46,24 @@ WATCHED_TOPICS = [
 
 
 class OrchestratorWorker:
-    """事件驱动的多制度编排器 Worker。"""
+    """事件驱动的编排器 Worker。"""
 
     def __init__(self):
         self.bus = EventBus()
         self._running = False
-        self._registry = get_registry()
 
     async def start(self):
         """启动 worker 主循环。"""
         await self.bus.connect()
 
+        # 确保所有消费者组
         for topic in WATCHED_TOPICS:
             await self.bus.ensure_consumer_group(topic, GROUP)
 
         self._running = True
-        log.info("Orchestrator worker started (multi-governance)")
+        log.info("🏛️ Orchestrator worker started")
 
+        # 先处理崩溃遗留的 pending 事件
         await self._recover_pending()
 
         while self._running:
@@ -99,14 +104,15 @@ class OrchestratorWorker:
                         f"Error handling event {entry_id} from {topic}: {e}",
                         exc_info=True,
                     )
+                    # 不 ACK → 事件会被重新投递
 
     async def _handle_event(self, topic: str, entry_id: str, event: dict):
-        """根据 topic 分发处理。"""
+        """根据 topic 和 event_type 分发处理。"""
         event_type = event.get("event_type", "")
         trace_id = event.get("trace_id", "")
         payload = event.get("payload", {})
 
-        log.info(f"{topic}/{event_type} trace={trace_id}")
+        log.info(f"📨 {topic}/{event_type} trace={trace_id}")
 
         if topic == TOPIC_TASK_CREATED:
             await self._on_task_created(payload, trace_id)
@@ -117,30 +123,14 @@ class OrchestratorWorker:
         elif topic == TOPIC_TASK_STALLED:
             await self._on_task_stalled(payload, trace_id)
 
-    def _resolve_agent(self, gov_type: str, state: str, payload: dict) -> str | None:
-        """通过治理模型解析目标 Agent。"""
-        try:
-            model = self._registry.get_model(gov_type)
-        except KeyError:
-            log.warning(f"Unknown governance type '{gov_type}', falling back to san_sheng")
-            model = self._registry.get_model("san_sheng")
-
-        context = {
-            "assignee_org": payload.get("assignee_org", ""),
-            "task_id": payload.get("task_id", ""),
-        }
-        return model.get_next_agent(state, context)
-
     async def _on_task_created(self, payload: dict, trace_id: str):
-        """任务创建 → 根据治理模型派发给初始 agent。"""
+        """任务创建 → 从治理模型获取初始 agent 派发。"""
         task_id = payload.get("task_id")
         state = payload.get("state", "Taizi")
-        gov_type = payload.get("governance_type", "san_sheng")
+        governance_type = payload.get("governance_type", "san_sheng")
 
-        agent = self._resolve_agent(gov_type, state, payload)
-        if not agent:
-            log.warning(f"No agent for state '{state}' in governance '{gov_type}'")
-            return
+        gov_model = governance_registry.get_model(governance_type)
+        agent = gov_model.get_next_agent(state) or "taizi"
 
         await self.bus.publish(
             topic=TOPIC_TASK_DISPATCH,
@@ -151,21 +141,25 @@ class OrchestratorWorker:
                 "task_id": task_id,
                 "agent": agent,
                 "state": state,
-                "governance_type": gov_type,
                 "message": f"新任务已创建: {payload.get('title', '')}",
             },
         )
 
     async def _on_task_status(self, event_type: str, payload: dict, trace_id: str):
-        """状态变更 → 通过治理模型自动派发下一个 agent。"""
+        """状态变更 → 从治理模型动态获取下一个 agent。"""
         task_id = payload.get("task_id")
         new_state = payload.get("to", "")
-        gov_type = payload.get("governance_type", "san_sheng")
+        governance_type = payload.get("governance_type", "san_sheng")
+        org = payload.get("assignee_org", "")
 
-        if is_terminal_state(new_state):
-            return
+        gov_model = governance_registry.get_model(governance_type)
+        context = {"assignee_org": org}
+        agent = gov_model.get_next_agent(new_state, context)
 
-        agent = self._resolve_agent(gov_type, new_state, payload)
+        # 六部路由：Assigned 状态下按 org 查 ORG_AGENT_MAP 覆盖
+        if new_state == "Assigned" and org:
+            agent = ORG_AGENT_MAP.get(org, agent)
+
         if agent:
             await self.bus.publish(
                 topic=TOPIC_TASK_DISPATCH,
@@ -176,29 +170,20 @@ class OrchestratorWorker:
                     "task_id": task_id,
                     "agent": agent,
                     "state": new_state,
-                    "governance_type": gov_type,
                     "message": f"任务已流转到 {new_state}",
                 },
             )
 
     async def _on_task_completed(self, payload: dict, trace_id: str):
-        """任务完成 → 触发跨制度机制回调。"""
+        """任务完成 → 记录日志。"""
         task_id = payload.get("task_id")
-        mechanisms = payload.get("mechanisms", [])
-
-        for mech_type in mechanisms:
-            try:
-                mechanism = self._registry.get_mechanism(mech_type)
-                await mechanism.on_task_complete(task_id, payload)
-            except KeyError:
-                pass
-
-        log.info(f"Task {task_id} completed. trace={trace_id}")
+        log.info(f"🎉 Task {task_id} completed. trace={trace_id}")
 
     async def _on_task_stalled(self, payload: dict, trace_id: str):
-        """任务停滞 → 通知或重新派发。"""
+        """任务停滞 → 通知尚书或重新派发。"""
         task_id = payload.get("task_id")
-        log.warning(f"Task {task_id} stalled! Requesting intervention. trace={trace_id}")
+        log.warning(f"⏸️ Task {task_id} stalled! Requesting intervention. trace={trace_id}")
+        # TODO: 实现停滞任务的自动恢复策略
 
 
 async def run_orchestrator():
@@ -214,3 +199,7 @@ async def run_orchestrator():
         loop.add_signal_handler(sig, lambda: asyncio.create_task(worker.stop()))
 
     await worker.start()
+
+
+if __name__ == "__main__":
+    asyncio.run(run_orchestrator())

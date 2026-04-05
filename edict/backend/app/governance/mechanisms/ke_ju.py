@@ -1,76 +1,54 @@
-"""科举制 — Agent 竞选机制。
+"""科举竞选机制 — 任务派发前通过竞争选拔最优 agent。
 
-在派发执行者之前，让多个候选 Agent「应试」（提交方案摘要），择优录用。
-可叠加到任何基础治理制度的「派发」环节。
+在 dispatch 前向多个候选 agent 发出竞标请求，
+选择评分最高者执行，实现能力导向的动态路由。
 """
 
-from __future__ import annotations
-
 import logging
-from typing import Any
-
-from ..base import CrossCuttingMechanism, CrossCuttingType
+from dataclasses import dataclass, field
 
 log = logging.getLogger("edict.mechanism.ke_ju")
 
 
-class KeJuMechanism(CrossCuttingMechanism):
-    """科举制 — 竞争性 Agent 选拔。"""
+@dataclass
+class KeJuMechanism:
+    """科举竞选：dispatch 前竞争选拔。"""
 
-    @property
-    def type(self) -> CrossCuttingType:
-        return CrossCuttingType.KE_JU
+    name: str = "ke_ju"
+    description: str = "科举竞选 — 多 agent 竞标，择优派发"
 
-    @property
-    def name(self) -> str:
-        return "科举制"
+    # 候选 agent 列表，为空时使用治理模型默认路由
+    candidates: list[str] = field(default_factory=list)
+    # 竞标超时（秒）
+    bid_timeout_sec: int = 30
 
-    @property
-    def description(self) -> str:
-        return (
-            "竞争性 Agent 选拔机制。在派发执行者前，让多个候选 Agent 提交方案摘要，"
-            "由评审 Agent 择优录用。提高任务与 Agent 的匹配度。"
-        )
+    def select_agent(self, state: str, candidates: list[str], context: dict) -> str | None:
+        """从候选 agent 中选拔最优者。
 
-    async def on_before_dispatch(self, task_id: str, agent: str, context: dict) -> dict:
-        """派发前拦截：插入科举竞选环节。
-
-        流程:
-        1. 收集候选 Agent 列表
-        2. 向每个候选者发送「应试」请求
-        3. 评估响应质量
-        4. 选出最佳人选替换原 agent
-
-        当前为框架实现，具体竞选逻辑在集成 OpenClaw 时完善。
+        当前实现：按 context 中的 agent_scores 选最高分；
+        无评分数据时返回 None（回退到治理模型默认路由）。
         """
-        candidates = context.get("ke_ju_candidates", [])
-        if not candidates:
-            log.debug(f"Task {task_id}: 科举制未配置候选人，跳过竞选")
-            return context
+        scores: dict[str, float] = context.get("agent_scores", {})
+        if not scores:
+            log.debug("ke_ju: 无评分数据，回退默认路由")
+            return None
 
-        log.info(f"Task {task_id}: 科举竞选启动，候选人 {candidates}")
+        ranked = sorted(
+            [(a, scores.get(a, 0.0)) for a in candidates],
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        if not ranked:
+            return None
 
-        # TODO: 实现竞选评估逻辑
-        # 1. 并发调用候选 agent，获取方案摘要
-        # 2. 由评审 agent（如门下省）打分
-        # 3. 选出最高分者
+        winner, score = ranked[0]
+        log.info(f"ke_ju: 选拔 {winner}（得分 {score:.2f}）for state={state}")
+        return winner
 
-        best_candidate = candidates[0] if candidates else agent
-        context["selected_agent"] = best_candidate
-        context["ke_ju_result"] = {
-            "task_id": task_id,
-            "candidates": candidates,
-            "selected": best_candidate,
-            "method": "ke_ju",
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "candidates": self.candidates,
+            "bid_timeout_sec": self.bid_timeout_sec,
         }
-
-        log.info(f"Task {task_id}: 科举结果 — 录用 {best_candidate}")
-        return context
-
-    async def on_state_change(self, task_id: str, from_state: str, to_state: str, context: dict) -> None:
-        log.debug(f"Task {task_id}: 科举制观测状态变更 {from_state} → {to_state}")
-
-    async def on_task_complete(self, task_id: str, context: dict) -> None:
-        ke_ju_result = context.get("ke_ju_result")
-        if ke_ju_result:
-            log.info(f"Task {task_id}: 科举制任务完成，录用者 {ke_ju_result.get('selected')} 表现记录")

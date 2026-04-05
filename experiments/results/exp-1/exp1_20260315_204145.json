@@ -1,0 +1,316 @@
+{
+  "experiment": "exp-1",
+  "model": "anthropic/claude-sonnet-4-6",
+  "timestamp": "2026-03-15T12:41:45.019643+00:00",
+  "task_weights": {
+    "task_23_governance_routing": 0.25,
+    "task_24_governance_state_machine": 0.2,
+    "task_25_governance_tradeoff_analysis": 0.25,
+    "task_26_governance_mechanism_composition": 0.2,
+    "task_27_governance_historical_mapping": 0.1
+  },
+  "results": [
+    {
+      "governance": "san_sheng",
+      "weighted_score": 0.6572,
+      "efficiency_index": 7.823e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.6522,
+        "task_24_governance_state_machine": 0.5681,
+        "task_25_governance_tradeoff_analysis": 0.838,
+        "task_26_governance_mechanism_composition": 0.5466,
+        "task_27_governance_historical_mapping": 0.617
+      },
+      "runs": 1
+    },
+    {
+      "governance": "cheng_xiang",
+      "weighted_score": 0.6928,
+      "efficiency_index": 7.219e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.5268,
+        "task_24_governance_state_machine": 0.8208,
+        "task_25_governance_tradeoff_analysis": 0.7569,
+        "task_26_governance_mechanism_composition": 0.7591,
+        "task_27_governance_historical_mapping": 0.5589
+      },
+      "runs": 1
+    },
+    {
+      "governance": "nei_ge",
+      "weighted_score": 0.6995,
+      "efficiency_index": 0.0001071,
+      "task_scores": {
+        "task_23_governance_routing": 0.8234,
+        "task_24_governance_state_machine": 0.5309,
+        "task_25_governance_tradeoff_analysis": 0.4966,
+        "task_26_governance_mechanism_composition": 0.8855,
+        "task_27_governance_historical_mapping": 0.862
+      },
+      "runs": 1
+    },
+    {
+      "governance": "jun_ji_chu",
+      "weighted_score": 0.6502,
+      "efficiency_index": 5.356e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.6981,
+        "task_24_governance_state_machine": 0.8044,
+        "task_25_governance_tradeoff_analysis": 0.6013,
+        "task_26_governance_mechanism_composition": 0.5758,
+        "task_27_governance_historical_mapping": 0.4926
+      },
+      "runs": 1
+    },
+    {
+      "governance": "feng_jian",
+      "weighted_score": 0.656,
+      "efficiency_index": 5.61e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.5176,
+        "task_24_governance_state_machine": 0.5418,
+        "task_25_governance_tradeoff_analysis": 0.7122,
+        "task_26_governance_mechanism_composition": 0.7821,
+        "task_27_governance_historical_mapping": 0.8378
+      },
+      "runs": 1
+    },
+    {
+      "governance": "yi_hui",
+      "weighted_score": 0.7946,
+      "efficiency_index": 8.138e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.9371,
+        "task_24_governance_state_machine": 0.5679,
+        "task_25_governance_tradeoff_analysis": 0.7831,
+        "task_26_governance_mechanism_composition": 0.8077,
+        "task_27_governance_historical_mapping": 0.8945
+      },
+      "runs": 1
+    },
+    {
+      "governance": "wei_yuan_hui",
+      "weighted_score": 0.6839,
+      "efficiency_index": 6.018e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.881,
+        "task_24_governance_state_machine": 0.8823,
+        "task_25_governance_tradeoff_analysis": 0.4938,
+        "task_26_governance_mechanism_composition": 0.4225,
+        "task_27_governance_historical_mapping": 0.7927
+      },
+      "runs": 1
+    },
+    {
+      "governance": "zong_tong",
+      "weighted_score": 0.7474,
+      "efficiency_index": 0.00010411,
+      "task_scores": {
+        "task_23_governance_routing": 0.4419,
+        "task_24_governance_state_machine": 0.9378,
+        "task_25_governance_tradeoff_analysis": 0.9217,
+        "task_26_governance_mechanism_composition": 0.7884,
+        "task_27_governance_historical_mapping": 0.6126
+      },
+      "runs": 1
+    },
+    {
+      "governance": "lian_bang",
+      "weighted_score": 0.7182,
+      "efficiency_index": 0.00011055,
+      "task_scores": {
+        "task_23_governance_routing": 0.8838,
+        "task_24_governance_state_machine": 0.645,
+        "task_25_governance_tradeoff_analysis": 0.5984,
+        "task_26_governance_mechanism_composition": 0.8713,
+        "task_27_governance_historical_mapping": 0.4438
+      },
+      "runs": 1
+    },
+    {
+      "governance": "athenian",
+      "weighted_score": 0.6235,
+      "efficiency_index": 4.696e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.4547,
+        "task_24_governance_state_machine": 0.8511,
+        "task_25_governance_tradeoff_analysis": 0.6622,
+        "task_26_governance_mechanism_composition": 0.4094,
+        "task_27_governance_historical_mapping": 0.9214
+      },
+      "runs": 1
+    },
+    {
+      "governance": "roman",
+      "weighted_score": 0.7421,
+      "efficiency_index": 7.754e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.8314,
+        "task_24_governance_state_machine": 0.8031,
+        "task_25_governance_tradeoff_analysis": 0.5626,
+        "task_26_governance_mechanism_composition": 0.9423,
+        "task_27_governance_historical_mapping": 0.4456
+      },
+      "runs": 1
+    },
+    {
+      "governance": "venetian",
+      "weighted_score": 0.5211,
+      "efficiency_index": 4.772e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.4411,
+        "task_24_governance_state_machine": 0.5756,
+        "task_25_governance_tradeoff_analysis": 0.6388,
+        "task_26_governance_mechanism_composition": 0.4462,
+        "task_27_governance_historical_mapping": 0.4673
+      },
+      "runs": 1
+    },
+    {
+      "governance": "kurultai",
+      "weighted_score": 0.699,
+      "efficiency_index": 5.867e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.9406,
+        "task_24_governance_state_machine": 0.7223,
+        "task_25_governance_tradeoff_analysis": 0.516,
+        "task_26_governance_mechanism_composition": 0.6025,
+        "task_27_governance_historical_mapping": 0.6986
+      },
+      "runs": 1
+    },
+    {
+      "governance": "ritsuryo",
+      "weighted_score": 0.5865,
+      "efficiency_index": 5.873e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.5344,
+        "task_24_governance_state_machine": 0.6871,
+        "task_25_governance_tradeoff_analysis": 0.6422,
+        "task_26_governance_mechanism_composition": 0.5583,
+        "task_27_governance_historical_mapping": 0.4322
+      },
+      "runs": 1
+    },
+    {
+      "governance": "shura",
+      "weighted_score": 0.7424,
+      "efficiency_index": 6.009e-05,
+      "task_scores": {
+        "task_23_governance_routing": 0.5918,
+        "task_24_governance_state_machine": 0.6613,
+        "task_25_governance_tradeoff_analysis": 0.8853,
+        "task_26_governance_mechanism_composition": 0.8637,
+        "task_27_governance_historical_mapping": 0.6813
+      },
+      "runs": 1
+    }
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "governance": "yi_hui",
+      "name": "议会制",
+      "weighted_score": 0.7946,
+      "efficiency_index": 8.138e-05
+    },
+    {
+      "rank": 2,
+      "governance": "zong_tong",
+      "name": "总统制",
+      "weighted_score": 0.7474,
+      "efficiency_index": 0.00010411
+    },
+    {
+      "rank": 3,
+      "governance": "shura",
+      "name": "舒拉制",
+      "weighted_score": 0.7424,
+      "efficiency_index": 6.009e-05
+    },
+    {
+      "rank": 4,
+      "governance": "roman",
+      "name": "罗马元老院",
+      "weighted_score": 0.7421,
+      "efficiency_index": 7.754e-05
+    },
+    {
+      "rank": 5,
+      "governance": "lian_bang",
+      "name": "联邦制",
+      "weighted_score": 0.7182,
+      "efficiency_index": 0.00011055
+    },
+    {
+      "rank": 6,
+      "governance": "nei_ge",
+      "name": "内阁制",
+      "weighted_score": 0.6995,
+      "efficiency_index": 0.0001071
+    },
+    {
+      "rank": 7,
+      "governance": "kurultai",
+      "name": "忽里勒台",
+      "weighted_score": 0.699,
+      "efficiency_index": 5.867e-05
+    },
+    {
+      "rank": 8,
+      "governance": "cheng_xiang",
+      "name": "丞相制",
+      "weighted_score": 0.6928,
+      "efficiency_index": 7.219e-05
+    },
+    {
+      "rank": 9,
+      "governance": "wei_yuan_hui",
+      "name": "委员会制",
+      "weighted_score": 0.6839,
+      "efficiency_index": 6.018e-05
+    },
+    {
+      "rank": 10,
+      "governance": "san_sheng",
+      "name": "三省六部",
+      "weighted_score": 0.6572,
+      "efficiency_index": 7.823e-05
+    },
+    {
+      "rank": 11,
+      "governance": "feng_jian",
+      "name": "分封制",
+      "weighted_score": 0.656,
+      "efficiency_index": 5.61e-05
+    },
+    {
+      "rank": 12,
+      "governance": "jun_ji_chu",
+      "name": "军机处",
+      "weighted_score": 0.6502,
+      "efficiency_index": 5.356e-05
+    },
+    {
+      "rank": 13,
+      "governance": "athenian",
+      "name": "雅典民主",
+      "weighted_score": 0.6235,
+      "efficiency_index": 4.696e-05
+    },
+    {
+      "rank": 14,
+      "governance": "ritsuryo",
+      "name": "令制",
+      "weighted_score": 0.5865,
+      "efficiency_index": 5.873e-05
+    },
+    {
+      "rank": 15,
+      "governance": "venetian",
+      "name": "威尼斯共和",
+      "weighted_score": 0.5211,
+      "efficiency_index": 4.772e-05
+    }
+  ]
+}
